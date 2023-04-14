@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+{% extends 'flatpages/default.html' %}
+{% load custom_filters %}
+{% block title %}
+new
+{% endblock title %}
+
+{% block content %}
+   <h1>Новость</h1>
+   <h3>{{ time_now|date:'M d Y' }}</h3>
+    <hr>
+   {% if new %}
+       <table>
+           <tr>
+               <td>Название</td>
+               <td>Дата публикации</td>
+               <td>Текст новости</td>
+           </tr>
+           <tr>
+               <td>{{ new.title|censor }}</td>
+               <td>{{ new.date_in|date:'d M Y' }}</td>
+               <td>{{ new.text|censor }}</td>
+           </tr>
+       </table>
+   {% else %}
+       <h2>Новости нет!</h2>
+   {% endif %}
+{% endblock content %}
