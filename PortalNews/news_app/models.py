@@ -7,6 +7,10 @@ class Author(models.Model):
     author_rating = models.IntegerField(default=0)
     author_user = models.OneToOneField(User, on_delete=models.CASCADE)
 
+    class Meta: # меняем в админке названия моделей на удобоваримый
+        verbose_name = 'Автор'
+        verbose_name_plural = 'Авторы'
+
     def update_rating(self):
         postRat = self.post_set.aggregate(postRating=Sum('post_rating'))  # берем модель post в ней суммируем поле post_rating
         pRat = 0
@@ -22,6 +26,13 @@ class Author(models.Model):
 
 class Category(models.Model):
     name_category = models.CharField(max_length=64, unique=True)
+
+    def __str__(self): # теперь в БД во вкладке http://127.0.0.1:8000/admin/news_app/post/ названия категорий
+        return self.name_category
+
+    class Meta: # меняем в админке названия моделей на удобоваримый
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
 class Post(models.Model):
     NEWS = 'NW'
@@ -44,10 +55,20 @@ class Post(models.Model):
          self.save()
     def preview(self):
         return f'{self.text[0:123]}...' # простая версия self.text[0:123]} + '...'
+    def __str__(self): # теперь в БД во вкладке http://127.0.0.1:8000/admin/news_app/post/ названия постов
+        return self.title
+    class Meta: # меняем в админке названия моделей на удобоваримый
+        verbose_name = 'Новость'
+        verbose_name_plural = 'Новости'
+
 
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    class Meta: # меняем в админке названия моделей на удобоваримый
+        verbose_name = 'Категория новости'
+        verbose_name_plural = 'Категории новостей'
 
 class Comment (models.Model):
     comment_post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -62,3 +83,10 @@ class Comment (models.Model):
     def dislike(self):
         self.comment_rating -= 1
         self.save()
+
+    class Meta: # меняем в админке названия моделей на удобоваримый
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
+    def __str__(self): # теперь в БД во вкладке http://127.0.0.1:8000/admin/news_app/post/ названия коммент
+        return self.comment_text
