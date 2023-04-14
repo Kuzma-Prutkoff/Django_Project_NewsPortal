@@ -1,14 +1,19 @@
 from django import template
 
 register = template.Library()
-bad_words = ['война', 'Война', 'войны', 'войне', 'войной', 'войну', 'мир', 'Мир', 'МИР', 'миром', 'миру', 'миры']
+bad_words = ['война', 'войны', 'войне', 'войной', 'войну', 'мир', 'МИР', 'миром', 'миру', 'миры']
+
+import string
 
 @register.filter()
 def censor(text):
     text_list = text.split()
+    censored_text_list = []
     for word in text_list:
-        if word in bad_words:
-            text = text.replace(word, word[0] + (len(word) - 1) * '*')
-    return text
-
-
+        clean_word = ''.join(s for s in word if s not in string.punctuation)
+        if clean_word.lower() in bad_words:
+            censored_word = clean_word[0] + (len(clean_word) - 1) * '*'
+            censored_text_list.append(word.replace(clean_word, censored_word))
+        else:
+            censored_text_list.append(word)
+    return ' '.join(censored_text_list)
