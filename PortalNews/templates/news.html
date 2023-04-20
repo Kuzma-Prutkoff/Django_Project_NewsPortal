@@ -1,15 +1,23 @@
 <!DOCTYPE html>
 {% extends 'flatpages/default.html' %}
 {% load custom_filters %}
+{% load custom_tags %}
 {% block title %}
 News
 {% endblock title %}
 
 {% block content %}
-   <h1>НОВОСТИ и СТАТЬИ</h1>
-   <h3>{{ time_now|date:'M d Y' }}</h3>
-   <h3> {{ next_news|default_if_none:"Новости ДНЯ пока нет" }} </h3>
+    <h1>НОВОСТИ и СТАТЬИ</h1>
+   <h5>{{ time_now|date:'M d Y' }}</h5>
+   <h5> {{ next_news|default_if_none:"Новости ДНЯ пока нет" }} </h5>
    <hr>
+<!--   {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}-->
+<!--   <form action="" method="get">-->
+<!--       {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}-->
+<!--       {{ filterset.form.as_p }}-->
+<!--       {# Добавим кнопку отправки данных формы #}-->
+<!--       <input type="submit" value="Найти" />-->
+<!--   </form>-->
    {% if news %}
        <table>
            <tr>
@@ -31,4 +39,23 @@ News
    {% else %}
        <h2>Новостей нет!</h2>
    {% endif %}
+   {# Добавляем пагинацию на страницу #}
+   {# Информация о предыдущих страницах #}
+   {% if page_obj.has_previous %}
+       {# Для каждой ссылки пагинации указываем обработку через новый тег и так во всех (a href=) #}
+       <a href="?{% url_replace page=1 %}">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+   {{ page_obj.number }}
+   {% if page_obj.has_next %}
+       <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
 {% endblock content %}
+

@@ -1,9 +1,8 @@
 from django import template
+import string
 
 register = template.Library()
 bad_words = ['война', 'войны', 'войне', 'войной', 'войну', 'мир', 'МИР', 'миром', 'миру', 'миры']
-
-import string
 
 @register.filter()
 def censor(text):

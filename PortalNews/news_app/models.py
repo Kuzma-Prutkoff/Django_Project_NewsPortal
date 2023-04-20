@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum  # for aggregate суммирование рейтинга методом Sum
-
+from django.urls import reverse
 
 class Author(models.Model):
     author_rating = models.IntegerField(default=0)
@@ -54,12 +54,15 @@ class Post(models.Model):
          self.post_rating -= 1
          self.save()
     def preview(self):
-        return f'{self.text[0:123]}...' # простая версия self.text[0:123]} + '...'
+        return f'{self.text[0:123]}...'
     def __str__(self): # теперь в БД во вкладке http://127.0.0.1:8000/admin/news_app/post/ названия постов
-        return self.title
+        return self.title  # f'{self.name.title()}: {self.description[:20]}' в продуктах так было
     class Meta: # меняем в админке названия моделей на удобоваримый
         verbose_name = 'Новость'
         verbose_name_plural = 'Новости'
+
+    def get_absolute_url(self):
+        return reverse('news_detail', args=[str(self.id)])
 
 
 class PostCategory(models.Model):
