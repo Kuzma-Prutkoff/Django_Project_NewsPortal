@@ -12,21 +12,6 @@ class NewsList(ListView):
     context_object_name = 'news'
     paginate_by = 5
 
-    # все эти функции больше не нужны на главной странице и перенесены в PostSearch
-    # def get_queryset(self):  # Переопределяем функцию получения списка новостей
-    #     queryset = super().get_queryset() # Получаем обычный запрос
-    #     # Используем наш класс фильтрации.self.request.GET содержит объект QueryDict, который мы рассматривали в этом юните
-    #     #  ранее. Сохраняем нашу фильтрацию в объекте класса,чтобы потом добавить в контекст и использовать в шаблоне.
-    #     self.filterset = PostFilter(self.request.GET, queryset)
-    #     return self.filterset.qs # Возвращаем из функции отфильтрованный список товаров
-    #
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['time_now'] = datetime.utcnow()
-    #     context['next_news'] = "Самая Самая свежая новость"
-    #     context['filterset'] = self.filterset  # Добавляем в контекст объект фильтрации.
-    #     return context
-
 class NewsDetail(DetailView):
     model = Post
     template_name = 'new.html'
@@ -38,6 +23,7 @@ class PostSearch(ListView):
     context_object_name = 'search'
     ordering = 'title'
     paginate_by = 5
+
     def get_queryset(self):  # Переопределяем функцию получения списка новостей
         queryset = super().get_queryset() # Получаем обычный запрос
         # Используем наш класс фильтрации.self.request.GET содержит объект QueryDict, который мы рассматривали в этом юните
