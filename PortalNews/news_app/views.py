@@ -4,6 +4,7 @@ from .models import Post
 from .filters import PostFilter
 from .forms import PostForm
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 class NewsList(ListView):
     model = Post
@@ -35,31 +36,36 @@ class PostSearch(ListView):
         context['filterset'] = self.filterset  # Добавляем в контекст объект фильтрации.
         return context
 
-class NewsCreate(CreateView):
-    form_class = PostForm # Указываем нашу разработанную форму
-    model = Post # модель товаров
-    template_name = 'post_edit.html' # и новый шаблон, в котором используется форма.
+class NewsCreate(PermissionRequiredMixin, CreateView):
+    form_class = PostForm
+    model = Post
+    template_name = 'post_edit.html'
+    raise_exception = True
+    permission_required = ('news_app.add_post',) # есть ли права у юзера делать это
     def form_valid(self, form): #В представлении, которое наследует CreateView, переопределяем метод form_valid
         post = form.save(commit=False)
         post.news_or_article = 'NW' # сразу же присвоим полю значение "новость"
         return super().form_valid(form) #запустим механизм сохранения, который вызовет form.save(commit=True).
 
-class ArticleCreate(CreateView):
+class ArticleCreate(PermissionRequiredMixin, CreateView):
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
-
+    raise_exception = True
+    permission_required = ('news_app.add_post',) # есть ли права у юзера делать это
     def form_valid(self, form):
         post = form.save(commit=False)
         post.news_or_article = 'AR' # сразу же присвоим полю значение "статья"
         return super().form_valid(form)
 
-class PostUpdate(UpdateView):
+class PostUpdate(PermissionRequiredMixin, UpdateView):
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
+    permission_required = ('news_app.change_post',) # есть ли права у юзера делать это
 
-class PostDelete(DeleteView):
+class PostDelete(PermissionRequiredMixin, DeleteView):
     model = Post
     template_name = 'post_delete.html'
     success_url = reverse_lazy('news_list')
+    permission_required = ('news_app.delete_post',) # есть ли права у юзера делать это
