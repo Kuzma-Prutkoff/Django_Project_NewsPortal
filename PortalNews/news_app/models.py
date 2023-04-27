@@ -58,8 +58,8 @@ class Post(models.Model):
     def __str__(self): # теперь в БД во вкладке http://127.0.0.1:8000/admin/news_app/post/ названия постов
         return self.title  # f'{self.name.title()}: {self.description[:20]}' в продуктах так было
     class Meta: # меняем в админке названия моделей на удобоваримый
-        verbose_name = 'Новость'
-        verbose_name_plural = 'Новости'
+        verbose_name = 'Пост'
+        verbose_name_plural = 'Пост-ы'
 
     def get_absolute_url(self):
         return reverse('news_detail', args=[str(self.id)])
