@@ -17,25 +17,35 @@ News
                <td>Название</td>
                <td>Дата публикации</td>
                <td>Текст новости</td>
+               {# Условие получается составным. #}
+               {% if perms.news_app.change_post or perms.news_app.delete_post %}
+               <td>Действия</td>
+               {% endif %}
            </tr>
 
            {% for p in news %}
            <tr>
-               <!-- Используем наш фильтр на одном из полей  |truncatewords:20-->
                <td>{{ p.title|censor }}</td>
                <td>{{ p.date_in|date:'d M Y' }}</td>
                <td>{{ p.text|censor }}</td>
+               <td>
+                    {# А здесь доступ для каждой ссылки теперь будем проверять отдельно #}
+                    {% if perms.news_app.change_post %}
+                    <a href="{% url 'news_update' pk=p.id %}">Изменить</a>
+                    {% endif %}
+                    {% if perms.news_app.delete_post %}
+                    <a href="{% url 'news_delete' p.id %}">Удалить</a>
+                    {% endif %}
+               </td>
            </tr>
            {% endfor %}
-
        </table>
    {% else %}
        <h2>Новостей нет!</h2>
    {% endif %}
+
    {# Добавляем пагинацию на страницу #}
-   {# Информация о предыдущих страницах #}
    {% if page_obj.has_previous %}
-       {# Для каждой ссылки пагинации указываем обработку через новый тег и так во всех (a href=) #}
        <a href="?{% url_replace page=1 %}">1</a>
        {% if page_obj.previous_page_number != 1 %}
            ...
