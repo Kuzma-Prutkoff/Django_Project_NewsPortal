@@ -1,0 +1,10 @@
+{% load i18n %}
+{% autoescape off %}
+{% blocktrans with site_name=current_site.name %} Привет вам от любомого вами {{ site_name }}!
+{% endblocktrans %}
+{% block content %}
+{% endblock %}
+{% blocktrans with site_name=current_site.name site_domain=current_site.domain %} Спасибо за то,что вы с нами {{ site_name }}!
+{{ site_domain }}
+{% endblocktrans %}
+{% endautoescape %}

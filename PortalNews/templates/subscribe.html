@@ -1,0 +1,26 @@
+{% extends 'flatpages/default.html' %}
+{% block title %}
+Subscriptions
+{% endblock title %}
+{% block content %}
+<!--def subscribe мы передали 2 переменные category,message-->
+<h1 class="text-center">{{ message }} {{ category }}</h1>>
+{% endblock content %}
+
+
+<!--    {% for category in categories  %}-->
+<!--        <p>-->
+<!--            {{ category.name_category }}-->
+<!--            <form method="post">-->
+<!--                {% csrf_token %}-->
+<!--                <input type="hidden" name="category_id" value="{{ category.id }}" />-->
+<!--                {% if category.user_subscribed %}-->
+<!--                    <button disabled>Подписаться</button>-->
+<!--                    <button name="action" value="unsubscribe">Отписаться</button>-->
+<!--                {% else %}-->
+<!--                    <button name="action" value="subscribe">Подписаться</button>-->
+<!--                    <button disabled>Отписаться</button>-->
+<!--                {% endif %}-->
+<!--            </form>-->
+<!--        </p>-->
+<!--    {% endfor %}-->

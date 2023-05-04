@@ -7,11 +7,15 @@ News
 {% endblock title %}
 
 {% block content %}
-   <h1>НОВОСТИ и СТАТЬИ</h1>
+   {% if is_not_subscriber %}
+       <p class="text-center"> <a href="{% url 'subscribe' category.id %}" class="btn btn-secondary btn-sm">Подписаться</a> </p>
+   {% endif %}
+
+   <h1>Список новостей по категориям</h1>
    <h5>{{ time_now|date:'M d Y' }}</h5>
    <h5> {{ next_news|default_if_none:"Новости ДНЯ пока нет" }} </h5>
    <hr>
-   {% if news %}
+   {% if category_news_list %}
        <table>
            <tr>
                <td>Название</td>
@@ -24,7 +28,7 @@ News
                {% endif %}
            </tr>
 
-           {% for p in news %}
+           {% for p in category_news_list %}
            <tr>
                <td>{{ p.title|censor }}</td>
                <td>{{ p.date_in|date:'d M Y' }}</td>

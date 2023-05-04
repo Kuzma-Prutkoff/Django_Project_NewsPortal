@@ -117,6 +117,27 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory' # верификация включена, чтобы зарегица, нужно пройти по ссылке из письма
 
 ACCOUNT_FORMS = {"signup": "accounts.forms.CustomSignupForm"}
+#Настройка почты
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # письмо придет на почту, а можно и в консоль
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = "karlusha.zarazniy@yandex.ru"
+EMAIL_HOST_PASSWORD = "vzyohuyxqxdxvvti"
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = "karlusha.zarazniy@yandex.ru"
+
+#Рассылка менеджерам
+SERVER_EMAIL = "karlusha.zarazniy@yandex.ru"
+MANAGERS = (
+    ('petroffyurchik', 'petroffyurchik@yandex.ru'), # делаем Юрчика менеджером
+    ('Petr', 'petr@yandex.ru'), # такого менеджера нет и почты такой нет, но как пример
+)
+#Рассылка админам
+ADMINS = (
+    ('petroffyurchik', 'petroffyurchik@yandex.ru'), # и админ и менеджер Юрчик
+)
