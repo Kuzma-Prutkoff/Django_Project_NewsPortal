@@ -15,11 +15,19 @@ new
                <td>Название</td>
                <td>Дата публикации</td>
                <td>Текст новости</td>
+               <td>Новость или Статья</td>
+               <td> Категория </td>
            </tr>
            <tr>
                <td>{{ new.title|censor }}</td>
                <td>{{ new.date_in|date:'d M Y' }}</td>
                <td>{{ new.text|censor }}</td>
+               <td>{{ new.news_or_article }}</td>
+               <td>
+               {% for category in new.post_category.all %}
+                   {{ category }}
+               {% endfor %}
+               </td>
            </tr>
        </table>
    {% else %}
