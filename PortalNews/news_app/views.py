@@ -22,7 +22,7 @@ class PostSearch(ListView):
     model = Post
     template_name = 'search.html'
     context_object_name = 'search'
-    ordering = 'title'
+    ordering = '-date_in'
     paginate_by = 5
 
     def get_queryset(self):  # Переопределяем функцию получения списка новостей
@@ -76,17 +76,18 @@ from .models import Category
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render
+
 class CategoryListView(NewsList): # Создаем страницу в которой посты отфильтрованы по категориям. наследуемся от вью NewsList.
     model = Post
     template_name = 'category_list.html'
     context_object_name = 'category_news_list'  # имя по которому мы будем обращаться к данному вью в шаблоне
 
-    def get_queryset(self): # переопределим метод get_queryset
+    def get_queryset(self): # будем получать на 'post/categories/<int:pk>' отфильтрованные по=id категории
         self.post_category = get_object_or_404(Category, id=self.kwargs['pk']) #если категорию удалили, а мы к ней обратимся по id, то ошибка 404 не повесит сервер
         queryset = Post.objects.filter(post_category=self.post_category).order_by('-date_in') #вернем queryset без 404 ошибке и отфильтруем его по дате создания -date_in
         return queryset
-    #добавим метод подписаться-отписаться
-    def get_context_data(self, **kwargs): # добавили 2 переменные is_not_suscriber и category. испол их в шаблоне category_list.html
+    #добавим кнопку подписаться-отписаться
+    def get_context_data(self, **kwargs): # добавили 2 переменные is_not_suscriber и category. использ их в шаблоне category_list.html
         context = super().get_context_data(**kwargs)
         context['is_not_subscriber'] = self.request.user not in self.post_category.subscribers.all()
         context['category'] = self.post_category
@@ -102,29 +103,3 @@ def subscribe(request, pk):
     message = 'Вы успешно подписались на рассылку новостей категории'
     return render(request, 'subscribe.html', {'category': category, 'message': message}) # и передадим 2 перем category,message
 
-
-
-# from django.contrib.auth.decorators import login_required
-# from django.db.models import Exists, OuterRef
-# from django.shortcuts import render
-# from django.views.decorators.csrf import csrf_protect
-# from .models import Subscription, Category
-
-# @login_required 				# только зарегистрированные пользователи
-# @csrf_protect   				# автоматически проверяется CSRF-токен в получаемых формах
-# def subscriptions(request):
-#     if request.method == 'POST':
-#         category_id = request.POST.get('category_id')
-#         category = Category.objects.get(id=category_id)
-#         action = request.POST.get('action')
-#         if action == 'subscribe':           					# подписаться
-#             Subscription.objects.create(user=request.user, category=category)
-#         elif action == 'unsubscribe':       					# отписаться
-#             Subscription.objects.filter(user=request.user, category=category,).delete()
-#
-#     categories_with_subscriptions = Category.objects.annotate(
-#         user_subscribed=Exists(Subscription.objects.filter(user=request.user, category=OuterRef('pk'),
-#             )
-#         )
-#     ).order_by('name_category') #фильтровать по полю name_category модели Category
-#     return render(request, 'subscribe.html', {'categories': categories_with_subscriptions},)
