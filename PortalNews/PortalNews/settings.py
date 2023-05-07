@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.yandex',
+
+    "django_apscheduler",
 ]
 SITE_ID = 1
 
@@ -122,7 +124,8 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory' # верификация включен
 
 ACCOUNT_FORMS = {"signup": "accounts.forms.CustomSignupForm"}
 #Настройка почты
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # письмо придет на почту, а можно и в консоль
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # письмо придет на почту
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # письмо придет в консоль
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = "karlusha.zarazniy@yandex.ru"
@@ -141,3 +144,24 @@ MANAGERS = (
 ADMINS = (
     ('petroffyurchik', 'petroffyurchik@yandex.ru'), # и админ и менеджер Юрчик
 )
+
+SITE_URL = 'http://127.0.0.1:8000'
+
+APSCHEDULER_DATETIME_FORMAT = 'N j, Y, f:s a'  # формат времени шедулера, специфический такой формат
+APSCHEDULER_RUN_NOW_TIMEOUT = 25                # время на выполнение 25 сек иначе выключение процесса
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
