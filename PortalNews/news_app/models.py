@@ -26,7 +26,7 @@ class Author(models.Model):
 
 class Category(models.Model):
     name_category = models.CharField(max_length=64, unique=True)
-    subscribers = models.ManyToManyField(User, blank=True, null=True, related_name='categories')
+    subscribers = models.ManyToManyField(User, blank=True, null=True, related_name='categories') # делаем подписку
 
     def __str__(self): # теперь в БД во вкладке http://127.0.0.1:8000/admin/news_app/post/ названия категорий на понятном языке
         return self.name_category
@@ -57,14 +57,13 @@ class Post(models.Model):
     def preview(self):
         return f'{self.text[0:123]}...'
     def __str__(self): # теперь в БД во вкладке http://127.0.0.1:8000/admin/news_app/post/ названия постов
-        return self.title  # f'{self.name.title()}: {self.description[:20]}' в продуктах так было
+        return f'{self.title} | {self.author}'   # f'{self.name.title()}: {self.description[:20]}' в продуктах так было
     class Meta: # меняем в админке названия моделей на удобоваримый
         verbose_name = 'Пост'
         verbose_name_plural = 'Пост-ы'
 
     def get_absolute_url(self):
-        return reverse('news_detail', args=[str(self.id)])
-
+        return f'/post/{self.id}' # было так, но зачем так сложно? reverse('news_detail', args=[str(self.id)])
 
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -95,10 +94,11 @@ class Comment (models.Model):
     def __str__(self): # теперь в БД во вкладке http://127.0.0.1:8000/admin/news_app/post/ названия коммент
         return self.comment_text
 
-class Subscription(models.Model):
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='subscriptions',)
-    category = models.ForeignKey(to='Category', on_delete=models.CASCADE, related_name='subscriptions',)
-
-    class Meta: # меняем в админке названия моделей на удобоваримый
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
+# Так делали подписку на платформе модель Product
+# class Subscription(models.Model):
+#     user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='subscriptions',)
+#     category = models.ForeignKey(to='Category', on_delete=models.CASCADE, related_name='subscriptions',)
+#
+#     class Meta: # меняем в админке названия моделей на удобоваримый
+#         verbose_name = 'Подписка'
+#         verbose_name_plural = 'Подписки'
