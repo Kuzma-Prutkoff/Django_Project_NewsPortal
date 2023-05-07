@@ -10,6 +10,9 @@ News
    {% if is_not_subscriber %}
        <p class="text-center"> <a href="{% url 'subscribe' category.id %}" class="btn btn-secondary btn-lg">Подписаться</a> </p>
    {% endif %}
+   {% if subscriber %}
+       <p class="text-center"> <a href="{% url 'unsubscribe' category.id %}" class="btn btn-secondary btn-lg">Отписаться</a> </p>
+   {% endif %}
 
    <h1>Список новостей по категориям</h1>
    <h5>{{ time_now|date:'M d Y' }}</h5>
@@ -72,3 +75,19 @@ News
    {% endif %}
 {% endblock content %}
 
+<!--    {% for category in categories  %}-->
+<!--        <p>-->
+<!--            {{ category.name_category }}-->
+<!--            <form method="post">-->
+<!--                {% csrf_token %}-->
+<!--                <input type="hidden" name="category_id" value="{{ category.id }}" />-->
+<!--                {% if category.user_subscribed %}-->
+<!--                    <button disabled>Подписаться</button>-->
+<!--                    <button name="action" value="unsubscribe">Отписаться</button>-->
+<!--                {% else %}-->
+<!--                    <button name="action" value="subscribe">Подписаться</button>-->
+<!--                    <button disabled>Отписаться</button>-->
+<!--                {% endif %}-->
+<!--            </form>-->
+<!--        </p>-->
+<!--    {% endfor %}-->

@@ -90,16 +90,24 @@ class CategoryListView(NewsList): # Создаем страницу в кото�
     def get_context_data(self, **kwargs): # добавили 2 переменные is_not_suscriber и category. использ их в шаблоне category_list.html
         context = super().get_context_data(**kwargs)
         context['is_not_subscriber'] = self.request.user not in self.post_category.subscribers.all()
+        context['subscriber'] = self.request.user in self.post_category.subscribers.all()
         context['category'] = self.post_category
         return context
 
-@login_required # только зарегистрированные пользователи
+@login_required # ПОДПИСАТЬСЯ только зарегистрированные пользователи
 @csrf_protect   # автоматически проверяется CSRF-токен в получаемых формах
 def subscribe(request, pk):
     user = request.user
     category = Category.objects.get(id=pk)
     category.subscribers.add(user)
-
     message = 'Вы успешно подписались на рассылку новостей категории'
     return render(request, 'subscribe.html', {'category': category, 'message': message}) # и передадим 2 перем category,message
 
+@login_required # ОТПИСАТЬСЯ только зарегистрированные пользователи
+@csrf_protect
+def unsubscribe(request, pk):
+    user = request.user
+    category = Category.objects.get(id=pk)
+    category.subscribers.remove(user)
+    message = 'Вы успешно отписались на рассылку новостей категории'
+    return render(request, 'subscribe.html', {'category': category, 'message': message})
