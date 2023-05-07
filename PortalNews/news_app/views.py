@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView ,DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from datetime import datetime
 from .models import Post
 from .filters import PostFilter
