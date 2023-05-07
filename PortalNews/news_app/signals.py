@@ -29,34 +29,3 @@ def notify_new_post(sender, instance, **kwargs):
             subscribers_emails += [s.email for s in subscribers]  #список почт подписчиков
         send_notification(instance.preview(), instance.pk, instance.title, subscribers_emails)  #
 
-
-# from django.contrib.auth.models import User
-# from django.core.mail import EmailMultiAlternatives
-# from django.db.models.signals import post_save
-# from django.dispatch import receiver
-# from .models import Post
-#
-# @receiver(post_save, sender=Post)
-# def post_created(instance, created, **kwargs):
-#     if not created:
-#         return
-#
-#     emails = User.objects.filter(subscriptions__category=instance.post_category).values_list('email', flat=True)
-#
-#     subject = f'Новый пост в категории {instance.post_category}'
-#
-#     text_content = (
-#         f'Название: {instance.title}\n'
-#         # f'Цена: {instance.price}\n\n'
-#         f'Ссылка на товар: http://127.0.0.1:8000{instance.get_absolute_url()}'
-#     )
-#     html_content = (
-#         f'Название: {instance.title}<br>'
-#         # f'Цена: {instance.price}<br><br>'
-#         f'<a href="http://127.0.0.1:8000{instance.get_absolute_url()}">'
-#         f'Ссылка на пост</a>'
-#     )
-#     for email in emails: # идем по циклу, чтобы рассылка шла каждому отдельно, а не то все увидят почты всех получателей
-#         msg = EmailMultiAlternatives(subject, text_content, None, [email])
-#         msg.attach_alternative(html_content, "text/html")
-#         msg.send()
