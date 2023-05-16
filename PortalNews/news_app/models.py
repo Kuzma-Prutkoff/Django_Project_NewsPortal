@@ -94,11 +94,4 @@ class Comment (models.Model):
     def __str__(self): # теперь в БД во вкладке http://127.0.0.1:8000/admin/news_app/post/ названия коммент
         return self.comment_text
 
-# Так делали подписку на платформе модель Product
-# class Subscription(models.Model):
-#     user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='subscriptions',)
-#     category = models.ForeignKey(to='Category', on_delete=models.CASCADE, related_name='subscriptions',)
-#
-#     class Meta: # меняем в админке названия моделей на удобоваримый
-#         verbose_name = 'Подписка'
-#         verbose_name_plural = 'Подписки'
+
