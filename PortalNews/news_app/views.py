@@ -6,6 +6,7 @@ from .forms import PostForm
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import PermissionRequiredMixin
 
+
 class NewsList(ListView):
     model = Post
     ordering = '-date_in'
@@ -86,7 +87,7 @@ class CategoryListView(NewsList): # Создаем страницу в кото�
         self.post_category = get_object_or_404(Category, id=self.kwargs['pk']) #если категорию удалили, а мы к ней обратимся по id, то ошибка 404 не повесит сервер
         queryset = Post.objects.filter(post_category=self.post_category).order_by('-date_in') #вернем queryset без 404 ошибке и отфильтруем его по дате создания -date_in
         return queryset
-    #добавим кнопку подписаться-отписаться
+    #добавим настройку для шаблона подписавшиеся-отписавшиеся
     def get_context_data(self, **kwargs): # добавили 2 переменные is_not_suscriber и category. использ их в шаблоне category_list.html
         context = super().get_context_data(**kwargs)
         context['is_not_subscriber'] = self.request.user not in self.post_category.subscribers.all()
@@ -109,5 +110,5 @@ def unsubscribe(request, pk):
     user = request.user
     category = Category.objects.get(id=pk)
     category.subscribers.remove(user)
-    message = 'Вы успешно отписались на рассылку новостей категории'
+    message = 'Вы успешно отписались от рассылки новостей категории'
     return render(request, 'subscribe.html', {'category': category, 'message': message})
