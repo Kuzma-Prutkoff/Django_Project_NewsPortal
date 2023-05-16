@@ -8,7 +8,7 @@ from django.core.management.base import BaseCommand
 from django_apscheduler import util
 from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
-from news_app.models import Post, Category
+from news_app.models import Post, Category          #  подчеркнуто красным но работает
 from django.template.loader import render_to_string
 
 
