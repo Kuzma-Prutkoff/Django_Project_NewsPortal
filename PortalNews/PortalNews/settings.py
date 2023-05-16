@@ -150,18 +150,22 @@ SITE_URL = 'http://127.0.0.1:8000'
 APSCHEDULER_DATETIME_FORMAT = 'N j, Y, f:s a'  # формат времени шедулера, специфический такой формат
 APSCHEDULER_RUN_NOW_TIMEOUT = 25                # время на выполнение 25 сек иначе выключение процесса
 
+# указывает на URL брокера сообщений (Redis).По умолчанию на порту 6379.
+CELERY_BROKER_URL = 'redis://default:qzlMZ2VRlhtk61iac7rlpzsdqJvs9hmb@redis-17053.c61.us-east-1-3.ec2.cloud.redislabs.com:17053'
+# указывает на хранилище результатов выполнения задач.
+CELERY_RESULT_BACKEND = 'redis://default:qzlMZ2VRlhtk61iac7rlpzsdqJvs9hmb@redis-17053.c61.us-east-1-3.ec2.cloud.redislabs.com:17053'
+CELERY_ACCEPT_CONTENT = ['application/json'] # допустимый формат данных.
+CELERY_TASK_SERIALIZER = 'json' # метод сериализации задач.
+CELERY_RESULT_SERIALIZER = 'json' # метод сериализации результатов.
+CELERY_TIMEZONE = 'Europe/Moscow'
+CELERY_TASK_TIME_LIMIT = 30*60 # время жизни таски
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Кеширование
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_DIR, 'cache_files'), # Указываем, куда будем сохранять кэшируемые файлы!
+        "TIMEOUT": 60,
+    }
+}
 
