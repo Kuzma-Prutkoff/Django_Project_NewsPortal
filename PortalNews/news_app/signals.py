@@ -1,23 +1,12 @@
-from django.db.models.signals import m2m_changed
+from django.db.models.signals import m2m_changed, post_save
 from django.template.loader import render_to_string
 from django.conf import settings
-from .models import PostCategory
+from .models import PostCategory, Post
 from django.dispatch import receiver
 from django.core.mail import EmailMultiAlternatives
+from .tasks import task_about_new_post
 
-
-def send_notification(preview, pk, title, subscribers):  # отдельно делаем функцию отправки сообщения о новом посте для подписчика
-    html_content = render_to_string(
-        'post_created_email.html',
-        {
-            'text': preview,
-            'link': f'{settings.SITE_URL}/post/{pk}' #   http://127.0.0.1:8000/post/pk
-        }
-    )
-    msg = EmailMultiAlternatives(subject=title, body='', from_email=settings.DEFAULT_FROM_EMAIL, to=subscribers)
-    msg.attach_alternative(html_content, "text/html")
-    msg.send()
-
+#запускаем сигнал таске ( task_about_new_post().delay() ) на отправку письма о новом посте подписантам категории
 @receiver(m2m_changed, sender=PostCategory)
 def notify_new_post(sender, instance, **kwargs):
     if kwargs['action'] == 'post_add':
@@ -27,5 +16,8 @@ def notify_new_post(sender, instance, **kwargs):
         for cat in categories:
             subscribers = cat.subscribers.all()
             subscribers_emails += [s.email for s in subscribers]  #список почт подписчиков
-        send_notification(instance.preview(), instance.pk, instance.title, subscribers_emails)  #
+        task_about_new_post.delay(instance.preview(), instance.pk, instance.title, subscribers_emails)
 
+
+#instance.title, instance.text, instance.date_in, instance.news_or_article, instance.post_category
+#'author', 'title', 'text', 'post_category'
