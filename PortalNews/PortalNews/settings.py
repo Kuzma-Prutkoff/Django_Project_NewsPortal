@@ -160,12 +160,109 @@ CELERY_RESULT_SERIALIZER = 'json' # метод сериализации резу
 CELERY_TIMEZONE = 'Europe/Moscow'
 CELERY_TASK_TIME_LIMIT = 30*60 # время жизни таски
 
-# Кеширование
+# Кеширование способ с файловой системой
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
         'LOCATION': os.path.join(BASE_DIR, 'cache_files'), # Указываем, куда будем сохранять кэшируемые файлы!
-        "TIMEOUT": 60,
+        "TIMEOUT": 300,
     }
 }
 
+# логи
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'console_warning', 'console_error_critical', 'general'],
+            'level': 'DEBUG'
+        },
+        'django.request': {
+            'handlers': ['errors', 'mail_admins']
+        },
+        'django.server': {
+            'handlers': ['errors', 'mail_admins']
+        },
+        'django.template': {
+            'handlers': ['errors']
+        },
+        'django.db.backends': {
+            'handlers': ['errors']
+        },
+        'django.security': {
+            'handlers': ['security']
+        },
+    },
+    'handlers': {
+        'general': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'formatter': 'myformat1',
+            'filename': 'general.log',
+            'filters': ['require_debug_false']
+        },
+        'errors': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'formatter': 'myformat5',
+            'filename': 'errors.log'
+        },
+        'security': {
+            'formatter': 'myformat1',
+            'class': 'logging.FileHandler',
+            'filename': 'security.log',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'myformat3'
+        },
+        'console_warning': {
+            'level': 'WARNING',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'myformat4'
+        },
+        'console_error_critical': {
+            'level': 'ERROR',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'myformat5'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'filters': ['require_debug_false'],
+            'formatter': 'myformat4'
+        }
+    },
+
+    'formatters': {
+        'myformat1': {
+            'format': '{asctime} {levelname} {module} {message}',
+            'datetime': '%m.%d %H:%M:%S',
+            'style': '{',
+        },
+        'myformat3': {
+            'format': '{asctime} {levelname} {message}',
+            'datetime': '%m.%d %H:%M:%S',
+            'style': '{',
+        },
+        'myformat4': {
+            'format': '{asctime} {levelname} {pathname} {message}',
+            'datetime': '%m.%d %H:%M:%S',
+            'style': '{',
+        },
+        'myformat5': {
+            'format': '{asctime} {levelname} {pathname} {exc_info} {message}',
+            'datetime': '%m.%d %H:%M:%S',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_true': {'()': 'django.utils.log.RequireDebugTrue'}, # пропускает записи только в случае, когда DEBUG = True
+        'require_debug_false': {'()': 'django.utils.log.RequireDebugFalse'},
+    },
+}
