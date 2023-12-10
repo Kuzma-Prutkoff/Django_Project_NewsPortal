@@ -1,23 +1,45 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from datetime import datetime
-from .models import Post
+from .models import Post, Category
 from .filters import PostFilter
 from .forms import PostForm
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import PermissionRequiredMixin
-
+from django.core.cache import cache # импортируем наш кэш
+from django.utils import timezone
+from django.shortcuts import redirect
+import pytz #  импортируем стандартный модуль для работы с часовыми поясами
+from django.http.response import HttpResponse #  импортируем респонс для проверки текста
 
 class NewsList(ListView):
     model = Post
     ordering = '-date_in'
     template_name = 'news.html'
-    context_object_name = 'news' #имя для шаблона
+    context_object_name = 'news' #имя которое мы используем в шаблоне
     paginate_by = 5
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['curent_time'] = timezone.now()
+        context['timezones'] = pytz.common_timezones # добавляем в контекст все доступные часовые пояса
+        return context
+
+    #  по пост-запросу будем добавлять в сессию часовой пояс, который и будет обрабатываться написанным нами ранее middleware
+    def post(self, request):
+        request.session['django_timezone'] = request.POST['timezone']
+        return redirect('news_list') # перенаправляемся в урл по имени name='news_list'. иначе будет так 8000/post/post--error
 
 class NewsDetail(DetailView):
     model = Post
     template_name = 'new.html'
-    context_object_name = 'new'
+    context_object_name = 'new' #имя для шаблона
+    queryset = Post.objects.all()
+    def get_object(self, *args, **kwargs): # переопределяем метод получения объекта,как ни странно кэш очень похож на словарь,и метод get
+        obj = cache.get(f'post-{self.kwargs["pk"]}', None)  # действует так же. Он забирает значение по ключу, если его нет, то забирает None.
+        if not obj:  # если объекта нет в кэше, то получаем его и записываем в кэш
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'post-{self.kwargs["pk"]}', obj)
+        return obj
 
 class PostSearch(ListView):
     model = Post
@@ -73,7 +95,6 @@ class PostDelete(PermissionRequiredMixin, DeleteView):
 
 
 from django.shortcuts import get_object_or_404
-from .models import Category
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render
@@ -112,3 +133,24 @@ def unsubscribe(request, pk):
     category.subscribers.remove(user)
     message = 'Вы успешно отписались от рассылки новостей категории'
     return render(request, 'subscribe.html', {'category': category, 'message': message})
+
+#           ---REST API---
+from rest_framework import viewsets
+from rest_framework import permissions # это про доступ
+from .serializers import *
+
+
+class NewsViewset(viewsets.ModelViewSet):
+   queryset = Post.objects.filter(news_or_article='NW')
+   serializer_class = NewsSerializer
+   permission_classes = [permissions.IsAuthenticatedOrReadOnly] # это про доступ
+
+# class ArticlesViewset(viewsets.ModelViewSet): # почему то не идет, либо News либо Articles
+#    queryset = Post.objects.filter(news_or_article='AR')
+#    serializer_class = ArticlesSerializer
+#    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class CategoryViewset(viewsets.ModelViewSet):
+   queryset = Category.objects.all()
+   serializer_class = CategorySerializer
+   permission_classes = [permissions.IsAuthenticatedOrReadOnly]

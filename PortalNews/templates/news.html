@@ -1,10 +1,21 @@
 <!DOCTYPE html>
 {% extends 'flatpages/default.html' %}
 {% load custom_filters %}
-{% load custom_tags %}
-{% block title %}
-News
-{% endblock title %}
+{% load custom_tags %} <!-- загружаем ручной фильтр censor -->
+{% load i18n %}         <!-- добавим загрузку переводчика с ру на анг -->
+{% load tz %} <!-- не забываем загрузить тег для работы с часовыми поясами -->
+<html lang="en">
+{% block head %}
+<!-- кусок про язык ру или анг -->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page title</title>
+ <!-- Если сейчас больше чем 19 или же меньше 7, то выводим тёмную тему, иначе выводим светлую -->
+    <style>
+        body {background-color: {% if current_time.hour >= 19 or current_time.hour <= 7 %} darkcyan {% else %} powderblue {% endif %};}
+    </style>
+{% endblock head %}
 
 {% block content %}
    <h1>НОВОСТИ и СТАТЬИ</h1>
@@ -14,13 +25,13 @@ News
    {% if news %}
        <table>
            <tr>
-               <td>Название</td>
-               <td>Дата публикации</td>
-               <td>Текст новости</td>
-               <td>Категория</td>
+               <td>{% trans 'Title' %}</td> <!-- перевод с ру на анг locale/django.po -->
+               <td>{% trans 'Date of publication' %}</td>
+               <td>{% trans 'Text of new' %}</td>
+               <td>{% trans 'Category' %}</td>
                {# Условие получается составным. #}
                {% if perms.news_app.change_post or perms.news_app.delete_post %}
-               <td>Действия</td>
+               <td>{% trans 'Actions' %}</td>
                {% endif %}
            </tr>
 
@@ -28,7 +39,7 @@ News
            <tr>
                <td>{{ p.title|censor }}</td>
                <td>{{ p.date_in|date:'d M Y' }}</td>
-               <td>{{ p.text|censor }}</td>
+               <td>{{ p.text|censor|truncatechars:100 }}</td>
                <td>
                    {% for categ in p.post_category.all %}
                        <a href="{% url 'category_list' categ.id %}">{{ categ }}</a>
@@ -50,7 +61,7 @@ News
        <h2>Новостей нет!</h2>
    {% endif %}
 
-   {# Добавляем пагинацию на страницу #}
+    <!-- Добавляем пагинацию на страницу -->
    {% if page_obj.has_previous %}
        <a href="?{% url_replace page=1 %}">1</a>
        {% if page_obj.previous_page_number != 1 %}
@@ -66,5 +77,47 @@ News
            <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
        {% endif %}
    {% endif %}
-{% endblock content %}
 
+ <!-- блок кода про выбор языка ru-en. Не забываем про csrf_token, set_language-кортеж языков в settings(ru-en) -->
+    <form action="{% url 'set_language' %}" method="POST"> {% csrf_token %}
+        <input type="hidden" name="next" value="{{ redirect_to }}">	<!-- Это урл куда нас будет редиректить -->
+
+        {% get_current_language as LANGUAGE_CODE %} <!-- этой строки нет в видосе про смену языка кнопкой -->
+
+        <select name="language" id="">
+            {% get_available_languages as LANGUAGES %} <!-- получаем языки -->
+            {% get_language_info_list for LANGUAGES as languages %} <!-- Помещаем их в список languages -->
+
+            {% for language in languages %} <!-- Итерируясь по списку, выводим их название на языке пользователя и код -->
+                <option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %} selected {% endif %}>
+                    {{ language.name_local }} - {{ language.code }}
+                </option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="set">
+    </form>
+
+ <!-- блок кода временная зона -->
+    {% get_current_timezone as TIME_ZONE %}
+    <form action="" method="POST">
+        {% csrf_token %}
+        <label for="timezone">Time zone:</label>
+        <select name="timezone">
+        {% for tz in timezones %}
+            <option value="{{ tz }}"{% if tz == TIME_ZONE %} selected{% endif %}>{{ tz }}</option>
+        {% endfor %}
+        </select>
+        <input type="submit" value="Set">
+    </form>
+
+    {{ TIME_ZONE }}
+    {{ current_time|timezone:TIME_ZONE }} <!-- Отображаем время в выбранном часовом поясе  -->
+
+        <!-- . перевод(рус) содержания полей моделей,  статьи или новости -->
+    {% for model in models %}
+    <div class="model-class">
+        {{ model.name }}
+    </div>
+    {% endfor %}
+{% endblock content %}
+</html>

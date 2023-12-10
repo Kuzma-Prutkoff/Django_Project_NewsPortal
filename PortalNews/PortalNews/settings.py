@@ -15,6 +15,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
+    'modeltranslation', # обязательно впишите его перед админом.перевод моделей на рус pip install django-modeltranslation
     'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.messages',
@@ -27,6 +28,7 @@ INSTALLED_APPS = [
     'news_app',
     'django.contrib.flatpages',
     'django_filters',
+    'accounts',
 
     'allauth',
     'allauth.account',
@@ -34,6 +36,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.yandex',
 
     "django_apscheduler",
+
+    'rest_framework', # Django Rest Framework
 ]
 SITE_ID = 1
 
@@ -45,7 +49,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware'
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'news_app.middlewares.TimezoneMiddleware', # add that middleware!
 ]
 
 ROOT_URLCONF = 'PortalNews.urls'
@@ -97,7 +103,7 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
-USE_TZ = False
+USE_TZ = True
 
 # Static files (CSS, JavaScript, Images) https://docs.djangoproject.com/en/3.2/howto/static-files/
 STATIC_URL = '/static/'
@@ -123,9 +129,9 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory' # верификация включена, чтобы зарегица, нужно пройти по ссылке из письма
 
 ACCOUNT_FORMS = {"signup": "accounts.forms.CustomSignupForm"}
-#Настройка почты
+            #Настройка почты
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # письмо придет на почту
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # письмо придет в консоль
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # письмо придет в консоль
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = "karlusha.zarazniy@yandex.ru"
@@ -169,100 +175,17 @@ CACHES = {
     }
 }
 
-# логи
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'console_warning', 'console_error_critical', 'general'],
-            'level': 'DEBUG'
-        },
-        'django.request': {
-            'handlers': ['errors', 'mail_admins']
-        },
-        'django.server': {
-            'handlers': ['errors', 'mail_admins']
-        },
-        'django.template': {
-            'handlers': ['errors']
-        },
-        'django.db.backends': {
-            'handlers': ['errors']
-        },
-        'django.security': {
-            'handlers': ['security']
-        },
-    },
-    'handlers': {
-        'general': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'formatter': 'myformat1',
-            'filename': 'general.log',
-            'filters': ['require_debug_false']
-        },
-        'errors': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'formatter': 'myformat5',
-            'filename': 'errors.log'
-        },
-        'security': {
-            'formatter': 'myformat1',
-            'class': 'logging.FileHandler',
-            'filename': 'security.log',
-        },
-        'console': {
-            'level': 'DEBUG',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-            'formatter': 'myformat3'
-        },
-        'console_warning': {
-            'level': 'WARNING',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-            'formatter': 'myformat4'
-        },
-        'console_error_critical': {
-            'level': 'ERROR',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-            'formatter': 'myformat5'
-        },
-        'mail_admins': {
-            'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler',
-            'filters': ['require_debug_false'],
-            'formatter': 'myformat4'
-        }
-    },
+# локализация
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale')
+]
 
-    'formatters': {
-        'myformat1': {
-            'format': '{asctime} {levelname} {module} {message}',
-            'datetime': '%m.%d %H:%M:%S',
-            'style': '{',
-        },
-        'myformat3': {
-            'format': '{asctime} {levelname} {message}',
-            'datetime': '%m.%d %H:%M:%S',
-            'style': '{',
-        },
-        'myformat4': {
-            'format': '{asctime} {levelname} {pathname} {message}',
-            'datetime': '%m.%d %H:%M:%S',
-            'style': '{',
-        },
-        'myformat5': {
-            'format': '{asctime} {levelname} {pathname} {exc_info} {message}',
-            'datetime': '%m.%d %H:%M:%S',
-            'style': '{',
-        },
-    },
-    'filters': {
-        'require_debug_true': {'()': 'django.utils.log.RequireDebugTrue'}, # пропускает записи только в случае, когда DEBUG = True
-        'require_debug_false': {'()': 'django.utils.log.RequireDebugFalse'},
-    },
+LANGUAGES = [('en-us', 'English'), ('ru', 'Русский')]
+
+# REST - API
+REST_FRAMEWORK = {
+   'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+   'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+   'PAGE_SIZE': 10,
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated', ],
 }

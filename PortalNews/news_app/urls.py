@@ -1,10 +1,11 @@
 from django.urls import path
 from .views import (NewsList, NewsDetail, PostSearch, NewsCreate, PostUpdate, PostDelete,
                     ArticleCreate, CategoryListView, subscribe, unsubscribe)
+from django.views.decorators.cache import cache_page
 
 urlpatterns = [
-   path('', NewsList.as_view(), name='news_list'),
-   path('<int:pk>', NewsDetail.as_view(), name='news_detail'),
+   path('', (NewsList.as_view()), name='news_list'),
+   path('<int:pk>', cache_page(60*10)(NewsDetail.as_view()), name='news_detail'),#кэши-ние на изм новости. Раз в 10мин для экономии ресурсов.
    path('search/', PostSearch.as_view(), name='post_search'),
    path('news/create/', NewsCreate.as_view(), name='news_create'),
    path('news/<int:pk>/edit/', PostUpdate.as_view(), name='news_update'),
